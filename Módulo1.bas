@@ -15,6 +15,7 @@ Sub abrir_formulario()
     Set wsLogin = ThisWorkbook.Sheets("LOGIN")
     Set wsUsuarios = ThisWorkbook.Sheets("USUARIOS")
     Set wsConfig = ThisWorkbook.Sheets("M-Configurator")
+    thisWorkbook.Sheets("Portada_Mestra").range("C3:C72").Value = ""
 
     ' Leer usuario y clave ingresados
     usuarioIngresado = Trim(wsLogin.Range("HX83").Value)

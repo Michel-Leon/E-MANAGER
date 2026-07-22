@@ -17,7 +17,7 @@ Attribute VB_Exposed = False
 private sub UserForm_Initialize()
    'Tamaño de la ventana
       Me.Height = 725
-      Me.Width = 1005
+      Me.Width = 1005  
    ' Configuracion listas desplegables
       with Me.T01
          .AddItem "Contrato"
@@ -613,3 +613,410 @@ Private Function OrdenarAscendente(cadena As String) As String
    Next i
    OrdenarAscendente = resultado
 End Function
+
+'---------------------------------------------------------------------
+' AYUDANTES GENÉRICOS
+'---------------------------------------------------------------------
+
+Private Function EnLista(ByVal valor As String, ParamArray listaValida() As Variant) As Boolean
+    ' Un ParamArray no se puede pasar directamente a otra función;
+    ' primero hay que copiarlo a un array normal.
+    Dim copia() As Variant
+    copia = listaValida
+    EnLista = EnListaArray(valor, copia)
+End Function
+
+' Igual que EnLista pero recibe un array ya armado (para uso interno de EvalLista)
+Private Function EnListaArray(ByVal valor As String, valores As Variant) As Boolean
+    Dim i As Long
+    For i = LBound(valores) To UBound(valores)
+        If valor = CStr(valores(i)) Then
+            EnListaArray = True
+            Exit Function
+        End If
+    Next i
+    EnListaArray = False
+End Function
+
+' ¿El valor (numérico, como texto) cae dentro de [minimo, maximo]?
+Private Function EnRango(ByVal valorTexto As String, ByVal minimo As Double, ByVal maximo As Double) As Boolean
+    If Not IsNumeric(valorTexto) Then
+        EnRango = False
+        Exit Function
+    End If
+    Dim valor As Double
+    valor = CDbl(valorTexto)
+    EnRango = (valor >= minimo And valor <= maximo)
+End Function
+
+' Texto legible con los valores válidos separados por " / "
+Private Function UnirValores(valores As Variant) As String
+   Dim i As Long
+   Dim resultado As String
+   For i = LBound(valores) To UBound(valores)
+      If i > LBound(valores) Then resultado = resultado & " / "
+      resultado = resultado & CStr(valores(i))
+   Next i
+   UnirValores = resultado
+End Function
+Private Sub EvalLista(ByVal ctrl As MSForms.Control, ByVal etiqueta As String, _
+                       valoresValidos As Variant, ByRef contador As Long, ByRef mensaje As String)
+    If Not EnListaArray(CStr(ctrl.Value), valoresValidos) Then
+        contador = contador + 1
+        mensaje = mensaje & "   - " & etiqueta & ": tienes '" & ctrl.Value & _
+                  "', cámbialo por " & UnirValores(valoresValidos) & "." & vbNewLine
+    End If
+End Sub
+
+Private Sub EvalRango(ByVal ctrl As MSForms.Control, ByVal etiqueta As String, _
+                       ByVal minimo As Double, ByVal maximo As Double, ByRef contador As Long, ByRef mensaje As String)
+    If Not EnRango(CStr(ctrl.Value), minimo, maximo) Then
+        contador = contador + 1
+        mensaje = mensaje & "   - " & etiqueta & ": tienes '" & ctrl.Value & _
+                  "', debe estar entre " & minimo & " y " & maximo & "." & vbNewLine
+    End If
+End Sub
+
+'---------------------------------------------------------------------
+' CRITERIOS POR PRODUCTO (una función = una columna de la tabla)
+'---------------------------------------------------------------------
+
+Private Function CumpleGFlexBasic() As Boolean
+    ' T22=Icc<10kA | T21=In<100A | T19=IP 31-66 | T28=Ingreso Inferior
+    ' T12=Altura | T13=Ancho | T15=Profundidad | T112/T113=Base/Izaje No Aplica
+    ' T114=Sujeción Pared/Poste
+    CumpleGFlexBasic = _
+        EnRango(Me.T22.Value, 0, 10) And _
+        EnRango(Me.T21.Value, 0, 100) And _
+        EnLista(Me.T19.Value, "31", "66") And _
+        EnLista(Me.T28.Value, "Inferior") And _
+        EnLista(Me.T12.Value, "600", "700", "800", "900") And _
+        EnLista(Me.T13.Value, "400", "520", "620") And _
+        EnLista(Me.T15.Value, "300") And _
+        EnLista(Me.T112.Value, "No Aplica") And _
+        EnLista(Me.T113.Value, "No Aplica") And _
+        EnLista(Me.T114.Value, "Pared", "Poste")
+End Function
+
+Private Function CumpleGFlexNeo() As Boolean
+    ' T22=Icc<25kA | T21=In<400A
+    CumpleGFlexNeo = _
+        EnRango(Me.T22.Value, 0, 25) And _
+        EnRango(Me.T21.Value, 0, 400) And _
+        EnLista(Me.T19.Value, "31", "42", "54", "55", "66","66") And _
+        EnLista(Me.T28.Value, "Inferior") And _
+        EnLista(Me.T12.Value, "600", "900", "1100") And _
+        EnLista(Me.T13.Value, "400", "720", "1120") And _
+        EnLista(Me.T15.Value, "400") And _
+        EnLista(Me.T112.Value, "No Aplica") And _
+        EnLista(Me.T113.Value, "No Aplica") And _
+        EnLista(Me.T114.Value, "Pared", "Poste")
+End Function
+
+Private Function CumpleTPowerCompacto() As Boolean
+    ' T22=Icc 25-40kA | T21=In 1250A
+    CumpleTPowerCompacto = _
+        EnRango(Me.T22.Value, 25, 40) And _
+        EnRango(Me.T21.Value, 0, 1250) And _
+        EnLista(Me.T19.Value, "30", "31", "42", "54","55") And _
+        EnLista(Me.T28.Value, "Inferior", "Superior", "Superior / Inferior") And _
+        EnLista(Me.T12.Value, "1600", "1800", "2000") And _
+         EnRango(Me.T13.Value, 0, 4400) And _
+        EnLista(Me.T15.Value, "400") And _
+        EnLista(Me.T112.Value, "Zocalo") And _
+        EnLista(Me.T113.Value, "Armella")
+End Function
+
+Private Function CumpleTPowerModular() As Boolean
+    ' T22=Icc 40-65kA | T21=In 1600-4000A
+    CumpleTPowerModular = _
+        EnRango(Me.T22.Value, 40, 65) And _
+        EnRango(Me.T21.Value, 1600, 4000) And _
+        EnLista(Me.T19.Value, "31","42", "54","55") And _
+        EnLista(Me.T28.Value, "Inferior", "Superior", "Superior / Inferior") And _
+        EnLista(Me.T12.Value, "1800", "2000", "2200") And _
+        EnRango(Me.T13.Value, 0, 4400)  And _
+        EnLista(Me.T15.Value, "600", "800", "1000") And _
+        EnLista(Me.T112.Value, "Zocalo", "Base estructural") And _
+        EnLista(Me.T113.Value, "Armella", "Angulo de izaje")
+End Function
+
+Private Function CumpleTPowerHeavy() As Boolean
+    ' T22=Icc>65kA | T21=In>4000A
+    ' definido cómo se guarda ese dato en el formulario.
+    CumpleTPowerHeavy = _
+        EnRango(Me.T22.Value, 65, 999999) And _
+        EnRango(Me.T21.Value, 4000, 9999999) And _
+        EnLista(Me.T19.Value, "31","42", "54","55") And _
+        EnLista(Me.T28.Value, "Inferior", "Superior", "Superior / Inferior") And _
+        EnLista(Me.T12.Value, "2000", "2200") And _
+         EnRango(Me.T13.Value, 0, 4400)  And _
+        EnLista(Me.T15.Value, "1000") And _
+        EnLista(Me.T112.Value, "Zocalo", "Base estructural") And _
+        EnLista(Me.T113.Value, "Armella", "Angulo de izaje") 
+End Function
+
+
+---------------------------------------------------------------------
+' DIAGNÓSTICO POR PRODUCTO
+' Cada función recorre los mismos criterios que su "Cumple..." gemela,
+' pero en vez de detenerse en el primer False, cuenta cuántos criterios
+' fallan y arma un mensaje con qué cambiar en cada uno.
+' Devuelve: la cantidad de campos en conflicto (0 = sí cumple).
+' Por referencia: el texto explicando cada conflicto.
+'---------------------------------------------------------------------
+
+Private Function DiferenciasGFlexBasic(ByRef mensaje As String) As Long
+    Dim n As Long, msg As String
+    EvalRango Me.T22, "Icc (T22)", 0, 10, n, msg
+    EvalRango Me.T21, "In (T21)", 0, 100, n, msg
+    EvalLista Me.T19, "IP (T19)", Array("31", "66"), n, msg
+    EvalLista Me.T28, "Ingreso de acometidas (T28)", Array("Inferior"), n, msg
+    EvalLista Me.T12, "Altura (T12)", Array("600", "700", "800", "900"), n, msg
+    EvalLista Me.T13, "Ancho (T13)", Array("400", "520", "620"), n, msg
+    EvalLista Me.T15, "Profundidad (T15)", Array("300"), n, msg
+    EvalLista Me.T112, "Base (T112)", Array("No Aplica"), n, msg
+    EvalLista Me.T113, "Izaje (T113)", Array("No Aplica"), n, msg
+    EvalLista Me.T114, "Sujeción (T114)", Array("Pared", "Poste"), n, msg
+    mensaje = msg
+    DiferenciasGFlexBasic = n
+End Function
+
+Private Function DiferenciasGFlexNeo(ByRef mensaje As String) As Long
+    Dim n As Long, msg As String
+    EvalRango Me.T22, "Icc (T22)", 0, 25, n, msg
+    EvalRango Me.T21, "In (T21)", 0, 400, n, msg
+    EvalLista Me.T19, "IP (T19)", Array("31", "42", "54", "55", "66"), n, msg
+    EvalLista Me.T28, "Ingreso de acometidas (T28)", Array("Inferior"), n, msg
+    EvalLista Me.T12, "Altura (T12)", Array("600", "900", "1100"), n, msg
+    EvalLista Me.T13, "Ancho (T13)", Array("400", "720", "1120"), n, msg
+    EvalLista Me.T15, "Profundidad (T15)", Array("400"), n, msg
+    EvalLista Me.T112, "Base (T112)", Array("No Aplica"), n, msg
+    EvalLista Me.T113, "Izaje (T113)", Array("No Aplica"), n, msg
+    EvalLista Me.T114, "Sujeción (T114)", Array("Pared", "Poste"), n, msg
+    mensaje = msg
+    DiferenciasGFlexNeo = n
+End Function
+
+Private Function DiferenciasTPowerCompacto(ByRef mensaje As String) As Long
+    Dim n As Long, msg As String
+    EvalRango Me.T22, "Icc (T22)", 25, 40, n, msg
+    EvalRango Me.T21, "In (T21)", 0, 1250, n, msg
+    EvalLista Me.T19, "IP (T19)", Array("30", "31", "42", "54", "55"), n, msg
+    EvalLista Me.T28, "Ingreso de acometidas (T28)", Array("Inferior", "Superior", "Superior / Inferior"), n, msg
+    EvalLista Me.T12, "Altura (T12)", Array("1600", "1800", "2000"), n, msg
+    EvalRango Me.T13, "Ancho (T13)", 0, 4400, n, msg
+    EvalLista Me.T15, "Profundidad (T15)", Array("400"), n, msg
+    EvalLista Me.T112, "Base (T112)", Array("Zocalo"), n, msg
+    EvalLista Me.T113, "Izaje (T113)", Array("Armella"), n, msg
+    mensaje = msg
+    DiferenciasTPowerCompacto = n
+End Function
+
+Private Function DiferenciasTPowerModular(ByRef mensaje As String) As Long
+    Dim n As Long, msg As String
+    EvalRango Me.T22, "Icc (T22)", 40, 65, n, msg
+    EvalRango Me.T21, "In (T21)", 1600, 4000, n, msg
+    EvalLista Me.T19, "IP (T19)", Array("31", "42", "54", "55"), n, msg
+    EvalLista Me.T28, "Ingreso de acometidas (T28)", Array("Inferior", "Superior", "Superior / Inferior"), n, msg
+    EvalLista Me.T12, "Altura (T12)", Array("1800", "2000", "2200"), n, msg
+    EvalRango Me.T13, "Ancho (T13)", 0, 4400, n, msg
+    EvalLista Me.T15, "Profundidad (T15)", Array("600", "800", "1000"), n, msg
+    EvalLista Me.T112, "Base (T112)", Array("Zocalo", "Base estructural"), n, msg
+    EvalLista Me.T113, "Izaje (T113)", Array("Armella", "Angulo de izaje"), n, msg
+    mensaje = msg
+    DiferenciasTPowerModular = n
+End Function
+
+Private Function DiferenciasTPowerHeavy(ByRef mensaje As String) As Long
+    Dim n As Long, msg As String
+    EvalRango Me.T22, "Icc (T22)", 65, 999999, n, msg
+    EvalRango Me.T21, "In (T21)", 4000, 9999999, n, msg
+    EvalLista Me.T19, "IP (T19)", Array("31", "42", "54", "55"), n, msg
+    EvalLista Me.T28, "Ingreso de acometidas (T28)", Array("Inferior", "Superior", "Superior / Inferior"), n, msg
+    EvalLista Me.T12, "Altura (T12)", Array("2000", "2200"), n, msg
+    EvalRango Me.T13, "Ancho (T13)", 0, 4400, n, msg
+    EvalLista Me.T15, "Profundidad (T15)", Array("1000"), n, msg
+    EvalLista Me.T112, "Base (T112)", Array("Zocalo", "Base estructural"), n, msg
+    EvalLista Me.T113, "Izaje (T113)", Array("Armella", "Angulo de izaje"), n, msg
+    mensaje = msg
+    DiferenciasTPowerHeavy = n
+End Function
+
+
+'---------------------------------------------------------------------
+' ARMA EL MENSAJE DE SUGERENCIA CUANDO NINGÚN PRODUCTO CUMPLE DEL TODO
+' Busca el/los producto(s) que necesitan MENOS cambios y los muestra.
+'---------------------------------------------------------------------
+
+Private Function ConstruirSugerencia() As String
+    Const TOTAL_PRODUCTOS As Long = 5
+    Dim nombres(1 To TOTAL_PRODUCTOS) As String
+    Dim diffs(1 To TOTAL_PRODUCTOS) As Long
+    Dim mensajes(1 To TOTAL_PRODUCTOS) As String
+
+    nombres(1) = "G-Flex Basic"
+    nombres(2) = "G-Flex NEO"
+    nombres(3) = "T-Power Compacto"
+    nombres(4) = "T-Power Modular"
+    nombres(5) = "T-Power Heavy"
+
+    diffs(1) = DiferenciasGFlexBasic(mensajes(1))
+    diffs(2) = DiferenciasGFlexNeo(mensajes(2))
+    diffs(3) = DiferenciasTPowerCompacto(mensajes(3))
+    diffs(4) = DiferenciasTPowerModular(mensajes(4))
+    diffs(5) = DiferenciasTPowerHeavy(mensajes(5))
+
+    Dim minDiff As Long
+    minDiff = diffs(1)
+    Dim i As Long
+    For i = 2 To TOTAL_PRODUCTOS
+        If diffs(i) < minDiff Then minDiff = diffs(i)
+    Next i
+
+    Dim resultado As String
+    resultado = "Con los datos actuales no se cumple ninguna configuración completa." & vbNewLine
+    resultado = resultado & "La(s) opción(es) más cercana(s) necesita(n) " & minDiff & " cambio(s):" & vbNewLine & vbNewLine
+
+    For i = 1 To TOTAL_PRODUCTOS
+        If diffs(i) = minDiff Then
+            resultado = resultado & "Para " & nombres(i) & ":" & vbNewLine & mensajes(i) & vbNewLine
+        End If
+    Next i
+
+    ConstruirSugerencia = resultado
+End Function
+
+
+'---------------------------------------------------------------------
+' MANEJO DE LOS OPTIONBUTTON (reset genérico + activar el par ganador)
+'---------------------------------------------------------------------
+
+Private Sub ResetOpciones()
+    Dim ctrl As MSForms.Control
+    For Each ctrl In Me.Controls
+        If TypeName(ctrl) = "OptionButton" Then
+            ctrl.Value = False
+            ctrl.Enabled = False
+        End If
+    Next ctrl
+End Sub
+
+Private Sub ActivarPar(ByVal opcion1 As MSForms.OptionButton, ByVal opcion2 As MSForms.OptionButton)
+    opcion1.Enabled = True
+    opcion1.Value = True
+    opcion2.Enabled = True
+    opcion2.Value = True
+End Sub
+
+
+'---------------------------------------------------------------------
+' BOTÓN "VALIDAR"
+'---------------------------------------------------------------------
+
+Private Sub Validar_Click()
+    ResetOpciones
+
+    If CumpleGFlexBasic() Then
+        ActivarPar Me.OptionGB, Me.OptionGB2
+        Exit Sub
+
+    ElseIf CumpleGFlexNeo() Then
+        ActivarPar Me.OptionGN, Me.OptionGN2
+        Exit Sub
+
+    ElseIf CumpleTPowerCompacto() Then
+        ActivarPar Me.OptionTC, Me.OptionTC2
+        Exit Sub
+
+    ElseIf CumpleTPowerModular() Then
+        ActivarPar Me.OptionTM, Me.OptionTM2
+        Exit Sub
+
+    ElseIf CumpleTPowerHeavy() Then
+        ActivarPar Me.OptionTH, Me.OptionTH2
+        Exit Sub
+    End If
+
+    ' Ninguna configuración se cumple del todo: sugerir qué cambiar
+    MsgBox ConstruirSugerencia(), vbInformation, "Ajustes sugeridos"
+END Sub    
+'Boton registar
+
+Private Sub Registrar_Click()
+   with thisWorkbook.sheets("Portada_Mestra")
+      ' c3 a c68
+   '==== 0. ALCANCE PROYECTO ====
+      .range("C3").Value = Me.T01.Value
+      .Range("C4").Value = Me.T02.Value
+      .Range("C5").Value = Me.T03.Value
+      .Range("C6").Value = Me.T04.Value
+      .Range("C7").Value = Me.T05.Value
+      .Range("C8").Value = Me.T06.Value
+      .Range("C9").Value = Me.T07.Value
+   ' ==== 1. CARACTERISTICAS METALMECANICAS ====
+      .Range("C11").Value = Me.T11.Value
+      .Range("C12").Value = Me.T12.Value & "x" & Me.T13.Value & "x" & Me.T15.Value
+      .Range("C13").Value = Me.T16.Value
+      .Range("C14").Value = Me.T17.Value
+      .Range("C15").Value = Me.T18.Value
+      .Range("C16").Value = Me.T19.Value
+      .Range("C17").Value = Me.T110.Value
+      .Range("C18").Value = Me.T111.Value
+      .Range("C19").Value = Me.T112.Value
+      .Range("C20").Value = Me.T113.Value
+      .Range("C21").Value = Me.T114.Value
+   '==== 2. CARACTERISTICAS DE ELECTRICIDAD ====
+      .Range("C23").Value = Me.T21.Value
+      .Range("C24").Value = Me.T22.Value
+      .Range("C25").Value = Me.T23.Value
+      .Range("C26").Value = Me.T24.Value
+      .Range("C27").Value = Me.T25.Value
+      .Range("C28").Value = Me.T26.Value
+      .Range("C29").Value = Me.T27.Value
+      .Range("C30").Value = Me.T28.Value
+      .Range("C31").Value = Me.T29.Value
+      .Range("C32").Value = Me.T210.Value
+   '==== 3. CARACTERISTICAS DE POTENCIA ====   
+      .Range("C34").Value = Me.T31.Value
+      .Range("C35").Value = Me.T32.Value
+      .Range("C36").Value = Me.T33.Value
+      .Range("C37").Value = Me.T34.Value
+      .Range("C38").Value = Me.T35.Value
+      .Range("C39").Value = Me.T36.Value
+      .Range("C40").Value = Me.T37.Value
+      .Range("C42").Value = Me.L1.Caption
+      .Range("C43").Value = Me.L2.Caption
+      .Range("C44").Value = Me.L3.Caption
+      .Range("C45").Value = Me.L4.Caption
+      .Range("C46").Value = Me.L5.Caption
+   '==== 4. CARACTERISTICAS DE SCONTROL ====
+      .Range("C48").Value = Me.T41.Value
+      .Range("C49").Value = Me.T42.Value
+      .Range("C50").Value = Me.T43.Value
+      .Range("C51").Value = Me.T44.Value
+      .Range("C52").Value = Me.T45.Value
+      .Range("C53").Value = Me.T46.Value
+      .Range("C54").Value = Me.T47.Value
+      .Range("C55").Value = Me.T48.Value
+   '==== 5. CARACTERISTICAS DE COMUNICACION ====   
+      .Range("C57").Value = Me.T51.Value
+   '==== 6. CARACTERISTICAS DE EMBALAJE ====   
+      .Range("C59").Value = Me.T61.Value
+   '==== 7. PAQUETE DE PRUEBAS ====   
+      .Range("C61").Value = Me.T71.Value
+   '==== 8. IDENTIFICACION Y ETIQUETADO ==== 
+      .Range("C63").Value = Me.T81.Value
+      .Range("C64").Value = Me.T82.Value
+      .Range("C65").Value = Me.T83.Value
+      .Range("C66").Value = Me.T84.Value
+      .Range("C67").Value = Me.T85.Value
+      .Range("C68").Value = Me.T86.Value
+      .Range("C69").Value = Me.T87.Value
+      .Range("C70").Value = Me.T88.Value
+      .Range("C71").Value = Me.T89.Value
+      .Range("C72").Value = Me.T810.Value
+   END WITH
+   MSGBOX "El formulario se ha guardado correctamente.", vbInformation   
+      
+End Sub
