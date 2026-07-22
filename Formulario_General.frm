@@ -32,7 +32,13 @@ private sub UserForm_Initialize()
          .AddItem "Pruebas SAT"
          .AddItem "No Aplica"
       end with
-      with Me.T07
+      with Me.T05
+         .AddItem "Distribucion"
+         .AddItem "Trasnferencia"
+         .AddItem "Compensacion"
+         .AddItem "No Aplica"
+      end with
+      with Me.T08
          .AddItem "Presencial"
          .AddItem "Virtual"
          .AddItem "Registro Fotografico"
@@ -947,76 +953,99 @@ Private Sub Registrar_Click()
    with thisWorkbook.sheets("Portada_Mestra")
       ' c3 a c68
    '==== 0. ALCANCE PROYECTO ====
-      .range("C3").Value = Me.T01.Value
-      .Range("C4").Value = Me.T02.Value
-      .Range("C5").Value = Me.T03.Value
-      .Range("C6").Value = Me.T04.Value
-      .Range("C7").Value = Me.T05.Value
-      .Range("C8").Value = Me.T06.Value
-      .Range("C9").Value = Me.T07.Value
+      .Range("C3").Value = Me.T00.Value
+      .range("C4").Value = Me.T01.Value
+      .Range("C5").Value = Me.T02.Value
+      .Range("C6").Value = Me.T03.Value
+      .Range("C7").Value = Me.T04.Value
+      .Range("C8").Value = Me.T05.Value
+      .Range("C9").Value = Me.T06.Value
+      .Range("C10").Value = Me.T07.Value
+      .Range("C11").Value = Me.T08.Value
    ' ==== 1. CARACTERISTICAS METALMECANICAS ====
-      .Range("C11").Value = Me.T11.Value
-      .Range("C12").Value = Me.T12.Value & "x" & Me.T13.Value & "x" & Me.T15.Value
-      .Range("C13").Value = Me.T16.Value
-      .Range("C14").Value = Me.T17.Value
-      .Range("C15").Value = Me.T18.Value
-      .Range("C16").Value = Me.T19.Value
-      .Range("C17").Value = Me.T110.Value
-      .Range("C18").Value = Me.T111.Value
-      .Range("C19").Value = Me.T112.Value
-      .Range("C20").Value = Me.T113.Value
-      .Range("C21").Value = Me.T114.Value
+      .Range("C13").Value = Me.T11.Value
+      .Range("C14").Value = Me.T12.Value & "x" & Me.T13.Value & "x" & Me.T15.Value
+      .Range("C15").Value = Me.T16.Value
+      .Range("C16").Value = Me.T17.Value
+      .Range("C17").Value = Me.T18.Value
+      .Range("C18").Value = Me.T19.Value
+      .Range("C19").Value = Me.T110.Value
+      .Range("C20").Value = Me.T111.Value
+      .Range("C21").Value = Me.T112.Value
+      .Range("C22").Value = Me.T113.Value
+      .Range("C23").Value = Me.T114.Value
    '==== 2. CARACTERISTICAS DE ELECTRICIDAD ====
-      .Range("C23").Value = Me.T21.Value
-      .Range("C24").Value = Me.T22.Value
-      .Range("C25").Value = Me.T23.Value
-      .Range("C26").Value = Me.T24.Value
-      .Range("C27").Value = Me.T25.Value
-      .Range("C28").Value = Me.T26.Value
-      .Range("C29").Value = Me.T27.Value
-      .Range("C30").Value = Me.T28.Value
-      .Range("C31").Value = Me.T29.Value
-      .Range("C32").Value = Me.T210.Value
+      .Range("C25").Value = Me.T21.Value
+      .Range("C26").Value = Me.T22.Value
+      .Range("C27").Value = Me.T23.Value
+      .Range("C28").Value = Me.T24.Value
+      .Range("C29").Value = Me.T25.Value
+      .Range("C30").Value = Me.T26.Value
+      .Range("C31").Value = Me.T27.Value
+      .Range("C32").Value = Me.T28.Value
+      .Range("C33").Value = Me.T29.Value
+      .Range("C34").Value = Me.T210.Value
    '==== 3. CARACTERISTICAS DE POTENCIA ====   
-      .Range("C34").Value = Me.T31.Value
-      .Range("C35").Value = Me.T32.Value
-      .Range("C36").Value = Me.T33.Value
-      .Range("C37").Value = Me.T34.Value
-      .Range("C38").Value = Me.T35.Value
-      .Range("C39").Value = Me.T36.Value
-      .Range("C40").Value = Me.T37.Value
-      .Range("C42").Value = Me.L1.Caption
-      .Range("C43").Value = Me.L2.Caption
-      .Range("C44").Value = Me.L3.Caption
-      .Range("C45").Value = Me.L4.Caption
-      .Range("C46").Value = Me.L5.Caption
+      .Range("C36").Value = Me.T31.Value
+      .Range("C37").Value = Me.T32.Value
+      .Range("C38").Value = Me.T33.Value
+      .Range("C39").Value = Me.T34.Value
+      .Range("C40").Value = Me.T35.Value
+      .Range("C41").Value = Me.T36.Value
+      .Range("C42").Value = Me.T37.Value
+      .Range("C44").Value = Me.L1.Caption
+      .Range("C45").Value = Me.L2.Caption
+      .Range("C46").Value = Me.L3.Caption
+      .Range("C47").Value = Me.L4.Caption
+      .Range("C48").Value = Me.L5.Caption
    '==== 4. CARACTERISTICAS DE SCONTROL ====
-      .Range("C48").Value = Me.T41.Value
-      .Range("C49").Value = Me.T42.Value
-      .Range("C50").Value = Me.T43.Value
-      .Range("C51").Value = Me.T44.Value
-      .Range("C52").Value = Me.T45.Value
-      .Range("C53").Value = Me.T46.Value
-      .Range("C54").Value = Me.T47.Value
-      .Range("C55").Value = Me.T48.Value
+      .Range("C50").Value = Me.T41.Value
+      .Range("C51").Value = Me.T42.Value
+      .Range("C52").Value = Me.T43.Value
+      .Range("C53").Value = Me.T44.Value
+      .Range("C54").Value = Me.T45.Value
+      .Range("C55").Value = Me.T46.Value
+      .Range("C56").Value = Me.T47.Value
+      .Range("C57").Value = Me.T48.Value
    '==== 5. CARACTERISTICAS DE COMUNICACION ====   
-      .Range("C57").Value = Me.T51.Value
+      .Range("C59").Value = Me.T51.Value
    '==== 6. CARACTERISTICAS DE EMBALAJE ====   
-      .Range("C59").Value = Me.T61.Value
+      .Range("C61").Value = Me.T61.Value
    '==== 7. PAQUETE DE PRUEBAS ====   
-      .Range("C61").Value = Me.T71.Value
+      .Range("C63").Value = Me.T71.Value
    '==== 8. IDENTIFICACION Y ETIQUETADO ==== 
-      .Range("C63").Value = Me.T81.Value
-      .Range("C64").Value = Me.T82.Value
-      .Range("C65").Value = Me.T83.Value
-      .Range("C66").Value = Me.T84.Value
-      .Range("C67").Value = Me.T85.Value
-      .Range("C68").Value = Me.T86.Value
-      .Range("C69").Value = Me.T87.Value
-      .Range("C70").Value = Me.T88.Value
-      .Range("C71").Value = Me.T89.Value
-      .Range("C72").Value = Me.T810.Value
+      .Range("C65").Value = Me.T81.Value
+      .Range("C66").Value = Me.T82.Value
+      .Range("C67").Value = Me.T83.Value
+      .Range("C68").Value = Me.T84.Value
+      .Range("C69").Value = Me.T85.Value
+      .Range("C70").Value = Me.T86.Value
+      .Range("C71").Value = Me.T87.Value
+      .Range("C72").Value = Me.T88.Value
+      .Range("C73").Value = Me.T89.Value
+      .Range("C74").Value = Me.T810.Value
    END WITH
    MSGBOX "El formulario se ha guardado correctamente.", vbInformation   
-      
+
+
+   ' PREGUNTA DE PARA QUIÉN VA DIRIGIDO EL PAQUETE
+   Dim respuesta As String
+   respuesta = InputBox("¿Para quién va dirigido el paquete?" & vbNewLine & _
+                        "1 = Pruebas FAT" & vbNewLine & _
+                        "2 = APE" & vbNewLine & _
+                        "3 = Cliente" & vbNewLine & _
+                        "4 = Todas", "Información")
+
+   Select Case respuesta
+      Case "1"
+         GenerarPaquete 1, Me.T11.Value
+      Case "2"
+         GenerarPaquete 2, Me.T11.Value
+      Case "3"
+         GenerarPaquete 3, Me.T11.Value
+      Case "4"
+         GenerarPaquete 4, Me.T11.Value
+      Case Else
+         MsgBox "Opción no válida. Ingresa un número del 1 al 4.", vbExclamation, "Información"
+   End Select
 End Sub
