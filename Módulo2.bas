@@ -5,9 +5,9 @@ Attribute VB_Name = "M�dulo2"
 
 Private Const ANCHO_COLUMNA As Double = 0.38        ' unidades de columna de Excel
 Private Const ALTO_FILA As Double = 3.6             ' puntos
-Private Const RANGO_IMPRESION As String = "B2:HA148"
+Private Const RANGO_IMPRESION As String = "B2:HC151"
 Private Const RANGO_VALORES_1 As String = "E5:GX139"
-Private Const RANGO_VALORES_2 As String = "E140:GR144"
+Private Const RANGO_VALORES_2 As String = "E140:GZ147"
 
 
 '---------------------------------------------------------------------
@@ -186,20 +186,25 @@ Private Sub ConfigurarYCopiarHoja(ByVal hojaOrigen As Worksheet, ByVal hojaDesti
     hojaDestino.Cells.ColumnWidth = ANCHO_COLUMNA
     hojaDestino.Cells.RowHeight = ALTO_FILA
 
-    ' 2) Copiar el contenido según el tipo de hoja
+    ' 2) Copiar TODO el rango de impresión tal cual (marco, título, logo,
+    '    pie de página, fórmulas, formato — todo viaja igual para
+    '    cualquier tipo de hoja)
+    hojaOrigen.Range(RANGO_IMPRESION).Copy
+    hojaDestino.Range(RANGO_IMPRESION).PasteSpecial Paste:=xlPasteAll
+    Application.CutCopyMode = False
+
+    ' 3) Solo en APE / FAT / Cliente: las dos zonas con fórmulas se
+    '    convierten a valor absoluto YA EN EL DESTINO (sin volver a
+    '    copiar del origen), para no arrastrar las fórmulas.
     If EsHojaDePortada(hojaDestino.Name) Then
-        CopiarSoloValores hojaOrigen.Range(RANGO_VALORES_1), hojaDestino.Range(RANGO_VALORES_1)
-        CopiarSoloValores hojaOrigen.Range(RANGO_VALORES_2), hojaDestino.Range(RANGO_VALORES_2)
-    Else
-        hojaOrigen.Range(RANGO_IMPRESION).Copy
-        hojaDestino.Range(RANGO_IMPRESION).PasteSpecial Paste:=xlPasteAll
-        Application.CutCopyMode = False
+        ConvertirAValores hojaDestino.Range(RANGO_VALORES_1)
+        ConvertirAValores hojaDestino.Range(RANGO_VALORES_2)
     End If
 
-    ' 3) Área de impresión fija para todas las hojas
+    ' 4) Área de impresión fija para todas las hojas
     hojaDestino.PageSetup.PrintArea = RANGO_IMPRESION
 
-    ' 4) Configuración de impresión: márgenes en 0, horizontal, centrada
+    ' 5) Configuración de impresión: márgenes en 0, horizontal, centrada
     With hojaDestino.PageSetup
         .LeftMargin = 0
         .RightMargin = 0
@@ -213,16 +218,17 @@ Private Sub ConfigurarYCopiarHoja(ByVal hojaOrigen As Worksheet, ByVal hojaDesti
     End With
 End Sub
 
-' ¿Es una de las 3 hojas "portada" que necesitan pegado de solo valores?
+' ¿Es una de las 3 hojas "portada" que necesitan sus zonas de datos
+' convertidas a valor (para no arrastrar fórmulas)?
 Private Function EsHojaDePortada(ByVal nombreHoja As String) As Boolean
     EsHojaDePortada = (nombreHoja = "APE" Or nombreHoja = "FAT" Or nombreHoja = "Cliente")
 End Function
 
-' Copia un rango y lo pega en el destino SOLO como valor (sin fórmulas),
-' conservando el formato original.
-Private Sub CopiarSoloValores(ByVal rangoOrigen As Range, ByVal rangoDestino As Range)
-    rangoOrigen.Copy
-    rangoDestino.PasteSpecial Paste:=xlPasteValues
-    rangoDestino.PasteSpecial Paste:=xlPasteFormats
-    Application.CutCopyMode = False
+' Convierte un rango ya pegado a solo su valor calculado, eliminando
+' cualquier fórmula, sin tocar el portapapeles ni el formato.
+Private Sub ConvertirAValores(ByVal rango As Range)
+    rango.Value = rango.Value
 End Sub
+
+
+

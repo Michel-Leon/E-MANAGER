@@ -763,7 +763,7 @@ Private Function CumpleTPowerHeavy() As Boolean
 End Function
 
 
----------------------------------------------------------------------
+'---------------------------------------------------------------------
 ' DIAGNÓSTICO POR PRODUCTO
 ' Cada función recorre los mismos criterios que su "Cumple..." gemela,
 ' pero en vez de detenerse en el primer False, cuenta cuántos criterios
