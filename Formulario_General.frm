@@ -352,79 +352,82 @@ private sub UserForm_Initialize()
          .AddItem "No Aplica"
       end with
 end sub    
-private sub T11_Change()
-   dim configuracion as string
+Private Sub T11_Change()
+   Dim configuracion As String
    configuracion = Me.T11.Value
-   with Me.T12
+   
+   With Me.T12
       .Clear
-      select case configuracion
-         case "T-Power"
+      Select Case configuracion
+         Case "T-Power"
             .AddItem "1600"
             .AddItem "1800"
             .AddItem "2000"
             .AddItem "2200"
-         case "G-Flex"
+         Case "G-Flex"
             .AddItem "600"
             .AddItem "700"
             .AddItem "800"
             .AddItem "900"
             .AddItem "1100"
-         case "BlokSeT"
+         Case "BlokSeT"
             .AddItem "por definir"
-         case "D-Critical"
+         Case "D-Critical"
             .AddItem "por definir"
-         case "S-Energy"
+         Case "S-Energy"
             .AddItem "por definir"
-         case "M-Board"
+         Case "M-Board"
             .AddItem "por definir"
-         case "G-Sync"
+         Case "G-Sync"
             .AddItem "por definir"
-         case "A-Tranfer"
+         Case "A-Tranfer"
             .AddItem "por definir"
-      end select
-   end with
-   with Me.T15
+      End Select
+   End With
+
+   With Me.T15
       .Clear
-      select case configuracion
-         case "T-Power"
+      Select Case configuracion
+         Case "T-Power"
             .AddItem "400"
             .AddItem "600"
             .AddItem "800"
             .AddItem "1000"
-         case "G-Flex"
+         Case "G-Flex"
             .AddItem "300"
             .AddItem "400"
-         case "BlokSeT"
+         Case "BlokSeT"
             .AddItem "por definir"
-         case "D-Critical"
+         Case "D-Critical"
             .AddItem "por definir"
-         case "S-Energy"
+         Case "S-Energy"
             .AddItem "por definir"
-         case "M-Board"
+         Case "M-Board"
             .AddItem "por definir"
-         case "G-Sync"
+         Case "G-Sync"
             .AddItem "por definir"
-         case "A-Tranfer"
+         Case "A-Tranfer"
             .AddItem "por definir"
-      end select
-   end with
+      End Select
+   End With
 
    CalcularEspacios
+   
    Select Case configuracion
       Case "T-Power", "D-Critical", "S-Energy", "M-Board", "G-Sync", "A-Tranfer"
          Me.T114.Enabled = False
          Me.T210.Enabled = False
-         Me.T29.Enabled = True 
+         Me.T29.Enabled = True
       Case "G-Flex"
          Me.T114.Enabled = True
          Me.T210.Enabled = False
          Me.T29.Enabled = False
-      Case "BlokSeT" 
+      Case "BlokSeT"
          Me.T114.Enabled = False
          Me.T210.Enabled = True
          Me.T29.Enabled = False
-End Select
-End sub
+   End Select
+End Sub
 
 Private Sub T13_Change()
    CalcularEspacios
@@ -484,14 +487,68 @@ Sub CalcularEspacios()
     Dim medidas() As Variant
 
     Select Case Trim(T11.Value)
+
+        Case "G-Flex"
+            ' --- G-Flex: solo UN ancho a la vez, no es suma de combinaciones ---
+            medidas = Array(1120, 720, 620, 520, 400)
+
+            If Not IsNumeric(T13.Value) Then
+                T14.Value = ""
+                Exit Sub
+            End If
+
+            valor = Val(T13.Value)
+
+            If valor <= 0 Then
+                T14.Value = ""
+                Exit Sub
+            End If
+
+            Dim i As Long
+            Dim esValido As Boolean
+            esValido = False
+
+            For i = LBound(medidas) To UBound(medidas)
+                If valor = medidas(i) Then
+                    esValido = True
+                    Exit For
+                End If
+            Next i
+
+            If esValido Then
+                ' Ancho correcto, no se necesita mensaje
+                T14.Value = ""
+            Else
+                ' No coincide con ninguno: mostrar cuáles SÍ son válidos + el más cercano
+                Dim mejor As Variant
+                Dim menorDif As Double
+                Dim dif As Double
+
+                menorDif = -1
+                For i = LBound(medidas) To UBound(medidas)
+                    dif = Abs(valor - medidas(i))
+                    If menorDif = -1 Or dif < menorDif Then
+                        menorDif = dif
+                        mejor = medidas(i)
+                    End If
+                Next i
+
+                T14.Value = "Ancho no válido para G-Flex." & vbNewLine & _
+                    "Anchos permitidos: 400 -- 520 -- 620 -- 720 -- 1120" & vbNewLine & _
+                    "El más cercano a " & valor & " es: " & mejor
+            End If
+
+            Exit Sub
+
         Case "T-Power"
             medidas = Array(1120, 720, 400, 200) ' orden descendente
-        Case "G-Flex"
-            medidas = Array(1120, 720, 620, 520, 400) ' orden descendente
+
         Case Else
             T14.Value = "Seleccione un tipo válido (T-Power o G-Flex)"
             Exit Sub
     End Select
+
+    ' --- A partir de aquí solo llega T-Power (lógica de combinaciones sin cambios) ---
 
     If Not IsNumeric(T13.Value) Then
         T14.Value = ""
@@ -510,12 +567,12 @@ Sub CalcularEspacios()
 
     BuscarCombinaciones medidas, 0, valor, "", combinaciones
 
-    Dim i As Long
+    Dim j As Long
     resultado = ""
-    For i = 1 To combinaciones.Count
+    For j = 1 To combinaciones.Count
         If resultado <> "" Then resultado = resultado & vbNewLine
-        resultado = resultado & combinaciones(i)
-    Next i
+        resultado = resultado & combinaciones(j)
+    Next j
 
     If resultado = "" Then
         T14.Value = "No hay combinación exacta posible"
