@@ -482,103 +482,103 @@ Private sub T23_Change()
 End Sub
 Sub CalcularEspacios()
 
-    Dim valor As Double
-    Dim resultado As String
-    Dim medidas() As Variant
+   Dim valor As Double
+   Dim resultado As String
+   Dim medidas() As Variant
 
-    Select Case Trim(T11.Value)
+   Select Case Trim(T11.Value)
 
-        Case "G-Flex"
-            ' --- G-Flex: solo UN ancho a la vez, no es suma de combinaciones ---
-            medidas = Array(1120, 720, 620, 520, 400)
+      Case "G-Flex"
+         ' --- G-Flex: solo UN ancho a la vez, no es suma de combinaciones ---
+         medidas = Array(1120, 720, 620, 520, 400)
 
-            If Not IsNumeric(T13.Value) Then
-                T14.Value = ""
-                Exit Sub
-            End If
+         If Not IsNumeric(T13.Value) Then
+               T14.Value = ""
+               Exit Sub
+         End If
 
-            valor = Val(T13.Value)
+         valor = Val(T13.Value)
 
-            If valor <= 0 Then
-                T14.Value = ""
-                Exit Sub
-            End If
+         If valor <= 0 Then
+               T14.Value = ""
+               Exit Sub
+         End If
 
-            Dim i As Long
-            Dim esValido As Boolean
-            esValido = False
+         Dim i As Long
+         Dim esValido As Boolean
+         esValido = False
 
-            For i = LBound(medidas) To UBound(medidas)
-                If valor = medidas(i) Then
-                    esValido = True
-                    Exit For
-                End If
-            Next i
+         For i = LBound(medidas) To UBound(medidas)
+               If valor = medidas(i) Then
+                  esValido = True
+                  Exit For
+               End If
+         Next i
 
-            If esValido Then
-                ' Ancho correcto, no se necesita mensaje
-                T14.Value = ""
-            Else
-                ' No coincide con ninguno: mostrar cuáles SÍ son válidos + el más cercano
-                Dim mejor As Variant
-                Dim menorDif As Double
-                Dim dif As Double
+         If esValido Then
+               ' Ancho correcto, no se necesita mensaje
+               T14.Value = ""
+         Else
+               ' No coincide con ninguno: mostrar cuáles SÍ son válidos + el más cercano
+               Dim mejor As Variant
+               Dim menorDif As Double
+               Dim dif As Double
 
-                menorDif = -1
-                For i = LBound(medidas) To UBound(medidas)
-                    dif = Abs(valor - medidas(i))
-                    If menorDif = -1 Or dif < menorDif Then
-                        menorDif = dif
-                        mejor = medidas(i)
-                    End If
-                Next i
+               menorDif = -1
+               For i = LBound(medidas) To UBound(medidas)
+                  dif = Abs(valor - medidas(i))
+                  If menorDif = -1 Or dif < menorDif Then
+                     menorDif = dif
+                     mejor = medidas(i)
+                  End If
+               Next i
 
-                T14.Value = "Ancho no válido para G-Flex." & vbNewLine & _
-                    "Anchos permitidos: 400 -- 520 -- 620 -- 720 -- 1120" & vbNewLine & _
-                    "El más cercano a " & valor & " es: " & mejor
-            End If
+               T14.Value = "Ancho no válido para G-Flex." & vbNewLine & _
+                  "Anchos permitidos: 400 -- 520 -- 620 -- 720 -- 1120" & vbNewLine & _
+                  "El más cercano a " & valor & " es: " & mejor
+         End If
 
-            Exit Sub
+         Exit Sub
 
-        Case "T-Power"
-            medidas = Array(1120, 720, 400, 200) ' orden descendente
+      Case "T-Power"
+         medidas = Array(1120, 720, 400, 200) ' orden descendente
 
-        Case Else
-            T14.Value = "Seleccione un tipo válido (T-Power o G-Flex)"
-            Exit Sub
-    End Select
+      Case Else
+         T14.Value = "Seleccione un tipo válido (T-Power o G-Flex)"
+         Exit Sub
+   End Select
 
-    ' --- A partir de aquí solo llega T-Power (lógica de combinaciones sin cambios) ---
+   ' --- A partir de aquí solo llega T-Power (lógica de combinaciones sin cambios) ---
 
-    If Not IsNumeric(T13.Value) Then
-        T14.Value = ""
-        Exit Sub
-    End If
+   If Not IsNumeric(T13.Value) Then
+      T14.Value = ""
+      Exit Sub
+   End If
 
-    valor = Val(T13.Value)
+   valor = Val(T13.Value)
 
-    If valor <= 0 Then
-        T14.Value = ""
-        Exit Sub
-    End If
+   If valor <= 0 Then
+      T14.Value = ""
+      Exit Sub
+   End If
 
-    Dim combinaciones As Collection
-    Set combinaciones = New Collection
+   Dim combinaciones As Collection
+   Set combinaciones = New Collection
 
-    BuscarCombinaciones medidas, 0, valor, "", combinaciones
+   BuscarCombinaciones medidas, 0, valor, "", combinaciones
 
-    Dim j As Long
-    resultado = ""
-    For j = 1 To combinaciones.Count
-        If resultado <> "" Then resultado = resultado & vbNewLine
-        resultado = resultado & combinaciones(j)
-    Next j
+   Dim j As Long
+   resultado = ""
+   For j = 1 To combinaciones.Count
+      If resultado <> "" Then resultado = resultado & vbNewLine
+      resultado = resultado & combinaciones(j)
+   Next j
 
-    If resultado = "" Then
-        T14.Value = "No hay combinación exacta posible"
-    Else
-        T14.Value = resultado
-    End If
+   If resultado = "" Then
+      T14.Value = "No hay combinación exacta posible"
+   Else
+      T14.Value = resultado
+   End If
 
 End Sub
 
@@ -1005,72 +1005,93 @@ Private Sub Validar_Click()
     MsgBox ConstruirSugerencia(), vbInformation, "Ajustes sugeridos"
 END Sub    
 'Boton registar
+Function ObtenerLineaSugerida() As String
+    
+   Dim lineaSugerida As String
+   lineaSugerida = ""
+   
+   If OptionTH.Value = True Then
+      lineaSugerida = "T-Power Heavy"
+   ElseIf OptionTM.Value = True Then
+      lineaSugerida = "T-Power Modular"
+   ElseIf OptionTC.Value = True Then
+      lineaSugerida = "T-Power Compacto"
+   ElseIf OptionGN.Value = True Then
+      lineaSugerida = "G-Flex NEO"
+   ElseIf OptionGB.Value = True Then
+      lineaSugerida = "G-Flex Basic"
+   ElseIf OptionBST.Value = True Then
+      lineaSugerida = "BlokSeT"
+   End If
+   
+   ObtenerLineaSugerida = lineaSugerida
 
+End Function
 Private Sub Registrar_Click()
    with thisWorkbook.sheets("Portada_Mestra")
       ' c3 a c68
-   '==== 0. ALCANCE PROYECTO ====
-      .Range("C3").Value = Me.T00.Value
-      .range("C4").Value = Me.T01.Value
-      .Range("C5").Value = Me.T02.Value
-      .Range("C6").Value = Me.T03.Value
-      .Range("C7").Value = Me.T04.Value
-      .Range("C8").Value = Me.T05.Value
-      .Range("C9").Value = Me.T06.Value
-      .Range("C10").Value = Me.T07.Value
-      .Range("C11").Value = Me.T08.Value
-   ' ==== 1. CARACTERISTICAS METALMECANICAS ====
-      .Range("C13").Value = Me.T11.Value
-      .Range("C14").Value = Me.T12.Value & "x" & Me.T13.Value & "x" & Me.T15.Value
-      .Range("C15").Value = Me.T16.Value
-      .Range("C16").Value = Me.T17.Value
-      .Range("C17").Value = Me.T18.Value
-      .Range("C18").Value = Me.T19.Value
-      .Range("C19").Value = Me.T110.Value
-      .Range("C20").Value = Me.T111.Value
-      .Range("C21").Value = Me.T112.Value
-      .Range("C22").Value = Me.T113.Value
-      .Range("C23").Value = Me.T114.Value
-   '==== 2. CARACTERISTICAS DE ELECTRICIDAD ====
-      .Range("C25").Value = Me.T21.Value
-      .Range("C26").Value = Me.T22.Value
-      .Range("C27").Value = Me.T23.Value
-      .Range("C28").Value = Me.T24.Value
-      .Range("C29").Value = Me.T25.Value
-      .Range("C30").Value = Me.T26.Value
-      .Range("C31").Value = Me.T27.Value
-      .Range("C32").Value = Me.T28.Value
-      .Range("C33").Value = Me.T29.Value
-      .Range("C34").Value = Me.T210.Value
-   '==== 3. CARACTERISTICAS DE POTENCIA ====   
-      .Range("C36").Value = Me.T31.Value
-      .Range("C37").Value = Me.T32.Value
-      .Range("C38").Value = Me.T33.Value
-      .Range("C39").Value = Me.T34.Value
-      .Range("C40").Value = Me.T35.Value
-      .Range("C41").Value = Me.T36.Value
-      .Range("C42").Value = Me.T37.Value
-      .Range("C44").Value = Me.L1.Caption
-      .Range("C45").Value = Me.L2.Caption
-      .Range("C46").Value = Me.L3.Caption
-      .Range("C47").Value = Me.L4.Caption
-      .Range("C48").Value = Me.L5.Caption
-   '==== 4. CARACTERISTICAS DE SCONTROL ====
-      .Range("C50").Value = Me.T41.Value
-      .Range("C51").Value = Me.T42.Value
-      .Range("C52").Value = Me.T43.Value
-      .Range("C53").Value = Me.T44.Value
-      .Range("C54").Value = Me.T45.Value
-      .Range("C55").Value = Me.T46.Value
-      .Range("C56").Value = Me.T47.Value
-      .Range("C57").Value = Me.T48.Value
-   '==== 5. CARACTERISTICAS DE COMUNICACION ====   
-      .Range("C59").Value = Me.T51.Value
-   '==== 6. CARACTERISTICAS DE EMBALAJE ====   
-      .Range("C61").Value = Me.T61.Value
-   '==== 7. PAQUETE DE PRUEBAS ====   
-      .Range("C63").Value = Me.T71.Value
-   '==== 8. IDENTIFICACION Y ETIQUETADO ==== 
+      '==== 0. ALCANCE PROYECTO ====
+         .Range("C3").Value = Me.T00.Value
+         .range("C4").Value = Me.T01.Value
+         .Range("C5").Value = Me.T02.Value
+         .Range("C6").Value = Me.T03.Value
+         .Range("C7").Value = Me.T04.Value
+         .Range("C8").Value = Me.T05.Value
+         .Range("C9").Value = Me.T06.Value
+         .Range("C10").Value = Me.T07.Value
+         .Range("C11").Value = Me.T08.Value
+      ' ==== 1. CARACTERISTICAS METALMECANICAS ====
+         .Range("C13").Value = Me.T11.Value
+         .Range("C14").Value = Me.T12.Value & "x" & Me.T13.Value & "x" & Me.T15.Value
+         .Range("C15").Value = Me.T16.Value
+         .Range("C16").Value = Me.T17.Value
+         .Range("C17").Value = Me.T18.Value
+         .Range("C18").Value = Me.T19.Value
+         .Range("C19").Value = Me.T110.Value
+         .Range("C20").Value = Me.T111.Value
+         .Range("C21").Value = Me.T112.Value
+         .Range("C22").Value = Me.T113.Value
+         .Range("C23").Value = Me.T114.Value
+      '==== 2. CARACTERISTICAS DE ELECTRICIDAD ====
+         .Range("C25").Value = Me.T21.Value
+         .Range("C26").Value = Me.T22.Value
+         .Range("C27").Value = Me.T23.Value
+         .Range("C28").Value = Me.T24.Value
+         .Range("C29").Value = Me.T25.Value
+         .Range("C30").Value = Me.T26.Value
+         .Range("C31").Value = Me.T27.Value
+         .Range("C32").Value = Me.T28.Value
+         .Range("C33").Value = Me.T29.Value
+         .Range("C34").Value = Me.T210.Value
+      '==== 3. CARACTERISTICAS DE POTENCIA ====   
+         .Range("C36").Value = Me.T31.Value
+         .Range("C37").Value = Me.T32.Value
+         .Range("C38").Value = Me.T33.Value
+         .Range("C39").Value = Me.T34.Value
+         .Range("C40").Value = Me.T35.Value
+         .Range("C41").Value = Me.T36.Value
+         .Range("C42").Value = Me.T37.Value
+         .Range("C44").Value = Me.L1.Caption
+         .Range("C45").Value = Me.L2.Caption
+         .Range("C46").Value = Me.L3.Caption
+         .Range("C47").Value = Me.L4.Caption
+         .Range("C48").Value = Me.L5.Caption
+      '==== 4. CARACTERISTICAS DE SCONTROL ====
+         .Range("C50").Value = Me.T41.Value
+         .Range("C51").Value = Me.T42.Value
+         .Range("C52").Value = Me.T43.Value
+         .Range("C53").Value = Me.T44.Value
+         .Range("C54").Value = Me.T45.Value
+         .Range("C55").Value = Me.T46.Value
+         .Range("C56").Value = Me.T47.Value
+         .Range("C57").Value = Me.T48.Value
+      '==== 5. CARACTERISTICAS DE COMUNICACION ====   
+         .Range("C59").Value = Me.T51.Value
+      '==== 6. CARACTERISTICAS DE EMBALAJE ====   
+         .Range("C61").Value = Me.T61.Value
+      '==== 7. PAQUETE DE PRUEBAS ====   
+         .Range("C63").Value = Me.T71.Value
+      '==== 8. IDENTIFICACION Y ETIQUETADO ==== 
       .Range("C65").Value = Me.T81.Value
       .Range("C66").Value = Me.T82.Value
       .Range("C67").Value = Me.T83.Value
@@ -1105,4 +1126,21 @@ Private Sub Registrar_Click()
       Case Else
          MsgBox "Opción no válida. Ingresa un número del 1 al 4.", vbExclamation, "Información"
    End Select
+   '________________________________________________________________________
+   Dim lineaSugerida As String
+    lineaSugerida = ObtenerLineaSugerida()
+    
+    If lineaSugerida = "" Then
+        MsgBox "No se ha seleccionado ninguna línea de producto.", vbExclamation
+        Exit Sub
+    End If
+
+   ' Preguntar si desea ir a diseño
+   If MsgBox("¿Desea ir a la pantalla de diseño?", vbQuestion + vbYesNo, "Información") = vbYes Then
+      Call AbrirLineaYCopiarPortada(lineaSugerida)
+      Unload Me
+   Else
+      Unload Me
+   End If
+
 End Sub
