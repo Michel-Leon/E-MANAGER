@@ -1138,11 +1138,11 @@ Private Sub Registrar_Click()
     End If
 
    ' Preguntar si desea ir a diseño
-   If MsgBox("¿Desea ir a la pantalla de diseño?", vbQuestion + vbYesNo, "Información") = vbYes Then
-      Call AbrirLineaYCopiarPortada(lineaSugerida)
-      Unload Me
-   Else
-      Unload Me
-   End If
+   'If MsgBox("¿Desea ir a la pantalla de diseño?", vbQuestion + vbYesNo, "Información") = vbYes Then
+     ' Call AbrirLineaYCopiarPortada(lineaSugerida)
+      'Unload Me
+   'Else
+      'Unload Me
+   'End If
 
 End Sub
