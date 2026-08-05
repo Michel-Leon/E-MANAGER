@@ -534,8 +534,10 @@ Sub CalcularEspacios()
                Next i
 
                T14.Value = "Ancho no válido para G-Flex." & vbNewLine & _
-                  "Anchos permitidos: 400 -- 520 -- 620 -- 720 -- 1120" & vbNewLine & _
-                  "El más cercano a " & valor & " es: " & mejor
+                  "Anchos permitidos:" & vbNewLine & _
+                  " Basic 400 -- 520 -- 620 -- 720" & vbNewLine & _ 
+                  " Neo  400--720 -- 1120" & vbNewLine & _
+                  "El más cercano a " & valor & " es: " & mejor 
          End If
 
          Exit Sub
@@ -754,7 +756,7 @@ Private Function CumpleGFlexBasic() As Boolean
         EnLista(Me.T19.Value, "31", "66") And _
         EnLista(Me.T28.Value, "Inferior") And _
         EnLista(Me.T12.Value, "600", "700", "800", "900") And _
-        EnLista(Me.T13.Value, "400", "520", "620") And _
+        EnLista(Me.T13.Value, "400", "520", "620", "720") And _
         EnLista(Me.T15.Value, "300") And _
         EnLista(Me.T112.Value, "No Aplica") And _
         EnLista(Me.T113.Value, "No Aplica") And _
@@ -836,7 +838,7 @@ Private Function DiferenciasGFlexBasic(ByRef mensaje As String) As Long
     EvalLista Me.T19, "IP (T19)", Array("31", "66"), n, msg
     EvalLista Me.T28, "Ingreso de acometidas (T28)", Array("Inferior"), n, msg
     EvalLista Me.T12, "Altura (T12)", Array("600", "700", "800", "900"), n, msg
-    EvalLista Me.T13, "Ancho (T13)", Array("400", "520", "620"), n, msg
+    EvalLista Me.T13, "Ancho (T13)", Array("400", "520", "620","720"), n, msg
     EvalLista Me.T15, "Profundidad (T15)", Array("300"), n, msg
     EvalLista Me.T112, "Base (T112)", Array("No Aplica"), n, msg
     EvalLista Me.T113, "Izaje (T113)", Array("No Aplica"), n, msg

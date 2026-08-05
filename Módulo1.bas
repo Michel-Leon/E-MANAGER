@@ -77,3 +77,11 @@ Sub MostarBARRAS()
     ActiveSheet.Shapes("ocultar Barras").Visible = True
     ActiveSheet.Shapes("Mostrar Barras").Visible = False
 End Sub
+Sub MostrarTodasLasHojas()
+    Dim ws As Worksheet
+    For Each ws In ThisWorkbook.Worksheets
+        ws.Visible = xlSheetVisible
+    Next ws
+    Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"", TRUE)"
+    Application.DisplayFormulaBar = True
+End Sub
