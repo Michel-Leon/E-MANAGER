@@ -40,28 +40,28 @@ Sub abrir_formulario()
     ' Referencias a las hojas
     Set wsLogin = ThisWorkbook.Sheets("LOGIN")
     Set wsUsuarios = ThisWorkbook.Sheets("USUARIOS")
-    Set wsConfig = ThisWorkbook.Sheets("Panel")
+    Set wsConfig = ThisWorkbook.Sheets("Hoja de entrada")
 
     ' Leer usuario y clave ingresados
-    usuarioIngresado = Trim(wsLogin.Range("HX83").Value)
-    claveIngresada = Trim(wsLogin.Range("HX98").Value)
+    usuarioIngresado = Trim(wsLogin.Range("IU83").Value)
+    claveIngresada = Trim(wsLogin.Range("IU98").Value)
 
     ' Validar que no est?n vac?os
     If usuarioIngresado = "" Or claveIngresada = "" Then
-        MsgBox "Debe ingresar usuario y contrase�a.", vbExclamation, "Login"
+        MsgBox "Debe ingresar usuario y contraseña.", vbExclamation, "Login"
         Exit Sub
     End If
 
     ' Buscar el usuario en la columna E de USUARIOS
     encontrado = False
-    ultimaFila = wsUsuarios.Cells(wsUsuarios.Rows.Count, "E").End(xlUp).Row
+    ultimaFila = wsUsuarios.Cells(wsUsuarios.Rows.Count, "D").End(xlUp).Row
 
     For i = 1 To ultimaFila
-        If Trim(wsUsuarios.Cells(i, "E").Value) = usuarioIngresado Then
+        If Trim(wsUsuarios.Cells(i, "D").Value) = usuarioIngresado Then
             ' Usuario encontrado, ahora validar clave
-            If Trim(wsUsuarios.Cells(i, "F").Value) = claveIngresada Then
+            If Trim(wsUsuarios.Cells(i, "E").Value) = claveIngresada Then
                 encontrado = True
-                nombreUsuario = Trim(wsUsuarios.Cells(i, "D").Value)
+                nombreUsuario = Trim(wsUsuarios.Cells(i, "C").Value)
                 Exit For
             End If
         End If
@@ -69,11 +69,11 @@ Sub abrir_formulario()
 
     If encontrado Then
         ' Escribir el nombre en M-Configurator, celda JO4
-        wsConfig.Range("K193").Value = nombreUsuario
+        wsConfig.Range("L185").Value = nombreUsuario
         'DIRIGIRSE A HOJA PANEL
         wsConfig.Activate
     Else
-        MsgBox "Usuario o contrase�a incorrectos.", vbCritical, "Login"
+        MsgBox "Usuario o contraseña incorrectos.", vbCritical, "Login"
     End If
 
 End Sub
